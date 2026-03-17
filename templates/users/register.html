@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Cadastrar Novo Usuário - AB Advocacia{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="bg-white dark:bg-darkCard rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">Cadastrar Novo Colaborador</h1>
+            <p class="text-slate-500">Apenas administradores podem registrar novos usuários no sistema.</p>
+        </div>
+
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div class="space-y-1">
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    {{ field.label }}
+                </label>
+                <div class="relative">
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-red-500 text-xs mt-1">
+                            {{ field.errors|first }}
+                        </div>
+                    {% endif %}
+                </div>
+                {% if field.help_text %}
+                    <p class="text-[10px] text-slate-400 leading-tight">{{ field.help_text }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="pt-4 flex items-center justify-between">
+                <a href="{% url 'home' %}" class="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Cancelar</a>
+                <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg shadow-brand-500/20">
+                    Registrar Colaborador
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    input {
+        @apply w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all dark:text-white;
+    }
+</style>
+{% endblock %}

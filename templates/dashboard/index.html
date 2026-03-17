@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - AB Advocacia{% endblock %}
+
+{% block content %}
+<div class="mb-10">
+    <h1 class="text-4xl font-bold mb-2 tracking-tight">Bem-vindo, {{ user.username }}</h1>
+    <p class="text-slate-500">Aqui está o resumo operacional do escritório hoje.</p>
+</div>
+
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <div class="bg-white dark:bg-darkCard p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 mb-4">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        </div>
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Clientes</p>
+        <p class="text-3xl font-bold">{{ stats.total_clientes }}</p>
+    </div>
+
+    <div class="bg-white dark:bg-darkCard p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-transform hover:scale-[1.02] cursor-pointer" onclick="location.href='{% url 'processos:kanban' %}'">
+        <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center text-amber-600 dark:text-amber-400 mb-4">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+        </div>
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Processos Ativos</p>
+        <p class="text-3xl font-bold">{{ stats.total_processos }}</p>
+    </div>
+
+    <div class="bg-white dark:bg-darkCard p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-4">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Receita Realizada</p>
+        <p class="text-3xl font-bold">R$ {{ stats.total_financeiro|floatformat:2 }}</p>
+    </div>
+
+    <div class="bg-brand-600 p-6 rounded-2xl shadow-xl shadow-brand-500/20 text-white flex flex-col justify-center">
+        <p class="text-brand-100 text-xs font-bold uppercase tracking-widest mb-1">Status do Sistema</p>
+        <p class="text-xl font-bold">Operacional</p>
+        <div class="mt-4 flex items-center space-x-2">
+            <div class="w-2 h-2 bg-emerald-300 rounded-full animate-pulse"></div>
+            <span class="text-xs text-brand-200">Servidores ativos</span>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Performance por Advogado -->
+    <div class="bg-white dark:bg-darkCard p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <h3 class="text-lg font-bold mb-6 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+            Processos por Advogado
+        </h3>
+        <div class="space-y-6">
+            {% for adv in stats.processos_por_advogado %}
+                <div>
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="font-medium text-slate-700 dark:text-slate-300">{{ adv.advogado__username }}</span>
+                        <span class="font-bold text-brand-600">{{ adv.total }} processos</span>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+                        <div class="bg-brand-500 h-2 rounded-full" style="width: {% widthratio adv.total stats.total_processos 100 %}%"></div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-slate-500 text-sm italic">Nenhum dado disponível.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-2 gap-4">
+        <button onclick="location.href='{% url 'clientes:novo' %}'" class="p-6 bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/10 border border-slate-200 dark:border-slate-800 rounded-2xl text-left transition-all hover:border-brand-300 group">
+            <div class="w-10 h-10 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 mb-4 group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            </div>
+            <p class="font-bold text-sm">Novo Cliente</p>
+            <p class="text-[10px] text-slate-400 mt-1 uppercase">Cadastro rápido</p>
+        </button>
+        
+        <button onclick="location.href='{% url 'processos:novo' %}'" class="p-6 bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/10 border border-slate-200 dark:border-slate-800 rounded-2xl text-left transition-all hover:border-brand-300 group">
+            <div class="w-10 h-10 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 mb-4 group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            </div>
+            <p class="font-bold text-sm">Abrir Processo</p>
+            <p class="text-[10px] text-slate-400 mt-1 uppercase">Novo registro</p>
+        </button>
+
+        <button onclick="location.href='{% url 'financeiro:nova_transacao' %}'" class="p-6 bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/10 border border-slate-200 dark:border-slate-800 rounded-2xl text-left transition-all hover:border-brand-300 group">
+            <div class="w-10 h-10 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 mb-4 group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <p class="font-bold text-sm">Lançar Honorário</p>
+            <p class="text-[10px] text-slate-400 mt-1 uppercase">Entrada financeira</p>
+        </button>
+
+        <button onclick="location.href='{% url 'financeiro:exportar_excel' %}'" class="p-6 bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/10 border border-slate-200 dark:border-slate-800 rounded-2xl text-left transition-all hover:border-brand-300 group">
+            <div class="w-10 h-10 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 mb-4 group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            </div>
+            <p class="font-bold text-sm">Relatório Excel</p>
+            <p class="text-[10px] text-slate-400 mt-1 uppercase">Download mensal</p>
+        </button>
+    </div>
+</div>
+{% endblock %}

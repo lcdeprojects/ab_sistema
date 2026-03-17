@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Kanban - AB Advocacia{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold">Fluxo de Processos</h1>
+    <div class="flex space-x-3">
+        <a href="{% url 'processos:novo' %}" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+            Novo Processo
+        </a>
+    </div>
+</div>
+
+<div class="mb-6">
+    <form method="GET" class="flex gap-2">
+        <input type="text" name="q" placeholder="Buscar por número ou nome..." value="{{ request.GET.q }}" 
+               class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 w-full md:w-96 focus:ring-2 focus:ring-brand-500 outline-none">
+        <button type="submit" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 px-4 py-2 rounded-lg transition-colors">
+            Buscar
+        </button>
+    </form>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 h-[calc(100vh-250px)] min-h-[600px]">
+    <!-- Coluna Aberto -->
+    <div class="flex flex-col bg-slate-100 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+        <div class="flex justify-between items-center mb-4 px-2">
+            <h2 class="font-bold flex items-center">
+                <span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span> Aberto
+            </h2>
+            <span class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-full font-semibold">{{ colunas.aberto|length }}</span>
+        </div>
+        <div class="flex-grow space-y-4 overflow-y-auto pr-1 custom-scrollbar">
+            {% for p in colunas.aberto %}
+                {% include 'processos/card_kanban.html' with processo=p %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Coluna Em Andamento -->
+    <div class="flex flex-col bg-slate-100 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+        <div class="flex justify-between items-center mb-4 px-2">
+            <h2 class="font-bold flex items-center">
+                <span class="w-3 h-3 bg-amber-500 rounded-full mr-2"></span> Em Andamento
+            </h2>
+            <span class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-full font-semibold">{{ colunas.em_andamento|length }}</span>
+        </div>
+        <div class="flex-grow space-y-4 overflow-y-auto pr-1 custom-scrollbar">
+            {% for p in colunas.em_andamento %}
+                {% include 'processos/card_kanban.html' with processo=p %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Coluna Suspenso -->
+    <div class="flex flex-col bg-slate-100 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+        <div class="flex justify-between items-center mb-4 px-2">
+            <h2 class="font-bold flex items-center">
+                <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span> Suspenso
+            </h2>
+            <span class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-full font-semibold">{{ colunas.suspenso|length }}</span>
+        </div>
+        <div class="flex-grow space-y-4 overflow-y-auto pr-1 custom-scrollbar">
+            {% for p in colunas.suspenso %}
+                {% include 'processos/card_kanban.html' with processo=p %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Coluna Encerrado -->
+    <div class="flex flex-col bg-slate-100 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+        <div class="flex justify-between items-center mb-4 px-2">
+            <h2 class="font-bold flex items-center">
+                <span class="w-3 h-3 bg-emerald-500 rounded-full mr-2"></span> Encerrado
+            </h2>
+            <span class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-full font-semibold">{{ colunas.encerrado|length }}</span>
+        </div>
+        <div class="flex-grow space-y-4 overflow-y-auto pr-1 custom-scrollbar">
+            {% for p in colunas.encerrado %}
+                {% include 'processos/card_kanban.html' with processo=p %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { @apply bg-slate-300 dark:bg-slate-700 rounded-full; }
+</style>
+{% endblock %}

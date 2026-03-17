@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Nova Atualização - AB Advocacia{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold">Nova Atualização</h1>
+        <p class="text-sm text-slate-500">Adicione um novo evento ou documento ao processo.</p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+        {% csrf_token %}
+        
+        <div class="space-y-1">
+            <label for="id_comentario" class="text-sm font-medium">Comentário / Relato</label>
+            <textarea name="comentario" id="id_comentario" required rows="6" 
+                      class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none"
+                      placeholder="Descreva o que houve nesta etapa..."></textarea>
+        </div>
+
+        <div class="space-y-1">
+            <label class="text-sm font-medium block">Documento Anexo (Opcional)</label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-200 dark:border-slate-800 border-dashed rounded-lg hover:border-brand-500 transition-colors cursor-pointer group">
+                <div class="space-y-1 text-center">
+                    <svg class="mx-auto h-12 w-12 text-slate-400 group-hover:text-brand-500" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <div class="flex text-sm text-slate-600 dark:text-slate-400">
+                        <label for="id_arquivo" class="relative cursor-pointer rounded-md font-medium text-brand-600 hover:text-brand-500">
+                            <span>Upload de arquivo</span>
+                            <input id="id_arquivo" name="arquivo" type="file" class="sr-only">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-4 flex justify-end space-x-3">
+            <a href="javascript:history.back()" class="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 transition-colors">Cancelar</a>
+            <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                Publicar Atualização
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

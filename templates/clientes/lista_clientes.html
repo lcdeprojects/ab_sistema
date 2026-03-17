@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Clientes - AB Advocacia{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Clientes</h1>
+    <a href="{% url 'clientes:novo' %}" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+        Novo Cliente
+    </a>
+</div>
+
+<div class="mb-6">
+    <form method="GET" class="flex gap-2">
+        <input type="text" name="q" placeholder="Buscar por nome ou CPF..." value="{{ request.GET.q }}" 
+               class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 w-full md:w-96 focus:ring-2 focus:ring-brand-500 outline-none">
+        <button type="submit" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 px-4 py-2 rounded-lg transition-colors">
+            Buscar
+        </button>
+    </form>
+</div>
+
+<div class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <table class="w-full text-left">
+        <thead>
+            <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                <th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400">Nome</th>
+                <th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400">CPF</th>
+                <th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400">Contato</th>
+                <th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+            {% for cliente in clientes %}
+            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                <td class="px-6 py-4">
+                    <a href="{% url 'clientes:detalhes' cliente.pk %}" class="font-medium text-brand-600 dark:text-brand-400 hover:underline">
+                        {{ cliente.nome }} {{ cliente.sobrenome }}
+                    </a>
+                </td>
+                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ cliente.cpf }}</td>
+                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                    {{ cliente.email }}<br>
+                    <span class="text-xs">{{ cliente.telefone }} {% if cliente.whatsapp %}(Whats){% endif %}</span>
+                </td>
+                <td class="px-6 py-4 text-sm space-x-2">
+                    <a href="{% url 'clientes:editar' cliente.pk %}" class="text-slate-600 dark:text-slate-400 hover:text-brand-600">Editar</a>
+                    <a href="{% url 'clientes:deletar' cliente.pk %}" class="text-red-600 hover:text-red-700">Deletar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="px-6 py-8 text-center text-slate-500">Nenhum cliente cadastrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if is_paginated %}
+<div class="mt-6 flex justify-center space-x-2">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm">Anterior</a>
+    {% endif %}
+    <span class="px-4 py-2 text-slate-600 dark:text-slate-400">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm">Próxima</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

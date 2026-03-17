@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Controle Financeiro - AB Advocacia{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold">Financeiro</h1>
+    <div class="flex space-x-3">
+        <a href="{% url 'financeiro:exportar_excel' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Exportar Excel
+        </a>
+        <a href="{% url 'financeiro:nova_transacao' %}" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+            Nova Transação
+        </a>
+    </div>
+</div>
+
+<div class="mb-8">
+    <form method="get" class="flex gap-4">
+        <input type="text" name="q" placeholder="Buscar cliente ou descrição..." value="{{ request.GET.q }}"
+            class="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-darkCard dark:text-white">
+        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+            Buscar
+        </button>
+        {% if request.GET.q %}
+        <a href="{% url 'financeiro:dashboard' %}" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg font-medium transition-colors">
+            Limpar
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Resumo Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white dark:bg-darkCard rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">Total Recebido</span>
+        <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">R$ {{ resumo.total_pago|floatformat:2 }}</p>
+    </div>
+    <div class="bg-white dark:bg-darkCard rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">Pendente</span>
+        <p class="text-3xl font-bold text-amber-600 dark:text-amber-400">R$ {{ resumo.total_pendente|floatformat:2 }}</p>
+    </div>
+    <div class="bg-white dark:bg-darkCard rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">Volume Total</span>
+        <p class="text-3xl font-bold text-brand-600 dark:text-brand-400">R$ {{ resumo.total_geral|floatformat:2 }}</p>
+    </div>
+</div>
+
+<!-- Tabela de Transações -->
+<div class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <table class="w-full text-left">
+        <thead>
+            <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                <th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400">Data</th>
+                <th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400">Cliente</th>
+                <th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400">Valor</th>
+                <th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400">Status</th>
+                <th class="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-400">Descrição</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+            {% for transacao in transacoes %}
+            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                <td class="px-6 py-4 text-sm font-mono text-slate-600 dark:text-slate-400">{{ transacao.data|date:"d/m/Y" }}</td>
+                <td class="px-6 py-4 text-sm font-bold text-slate-700 dark:text-slate-200">{{ transacao.cliente }}</td>
+                <td class="px-6 py-4 text-sm font-bold {% if transacao.tipo == 'entrada' %}text-emerald-600{% else %}text-red-600{% endif %}">
+                    R$ {{ transacao.valor }}
+                </td>
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase
+                        {% if transacao.status == 'pago' %}bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400
+                        {% elif transacao.status == 'pendente' %}bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400
+                        {% else %}bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400{% endif %}">
+                        {{ transacao.get_status_display }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-slate-500">{{ transacao.descricao|truncatechars:50 }}</td>
+                <td class="px-6 py-4 text-right space-x-2">
+                    <a href="{% url 'financeiro:editar_transacao' transacao.pk %}" class="text-slate-400 hover:text-brand-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    </a>
+                    <a href="{% url 'financeiro:deletar_transacao' transacao.pk %}" class="text-slate-400 hover:text-red-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-slate-500 italic">Nenhum lançamento financeiro registrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if object %}Editar Cliente{% else %}Novo Cliente{% endif %} - AB Advocacia
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold">{% if object %}Editar Cliente{% else %}Novo Cliente{% endif %}</h1>
+        <p class="text-slate-600 dark:text-slate-400">Preencha os dados abaixo para cadastrar o cliente.</p>
+    </div>
+
+    <form method="POST" class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-1">
+                <label for="id_nome" class="text-sm font-medium">Nome</label>
+                <input type="text" name="nome" id="id_nome" required value="{{ form.nome.value|default:'' }}"
+                       class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none">
+            </div>
+            <div class="space-y-1">
+                <label for="id_sobrenome" class="text-sm font-medium">Sobrenome</label>
+                <input type="text" name="sobrenome" id="id_sobrenome" required value="{{ form.sobrenome.value|default:'' }}"
+                       class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none">
+            </div>
+        </div>
+
+        <div class="space-y-1">
+            <label for="id_cpf" class="text-sm font-medium">CPF</label>
+            <input type="text" name="cpf" id="id_cpf" required value="{{ form.cpf.value|default:'' }}"
+                   placeholder="000.000.000-00"
+                   class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-1">
+                <label for="id_telefone" class="text-sm font-medium">Telefone</label>
+                <input type="text" name="telefone" id="id_telefone" required value="{{ form.telefone.value|default:'' }}"
+                       class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none">
+            </div>
+            <div class="flex items-center pt-6 space-x-2">
+                <input type="checkbox" name="whatsapp" id="id_whatsapp" {% if form.whatsapp.value %}checked{% endif %}
+                       class="w-4 h-4 text-brand-600 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded">
+                <label for="id_whatsapp" class="text-sm">Possui WhatsApp?</label>
+            </div>
+        </div>
+
+        <div class="space-y-1">
+            <label for="id_email" class="text-sm font-medium">E-mail</label>
+            <input type="email" name="email" id="id_email" required value="{{ form.email.value|default:'' }}"
+                   class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+
+        <div class="pt-4 flex justify-end space-x-3">
+            <a href="{% url 'clientes:lista' %}" class="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 transition-colors">Cancelar</a>
+            <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                Salvar Cliente
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
