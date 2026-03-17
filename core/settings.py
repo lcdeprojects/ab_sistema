@@ -5,7 +5,7 @@ import environ
 # Initialize environment variables
 env = environ.Env(
     DEBUG=(bool, False),
-    SECRET_KEY=(str, 'django-insecure-default-key'),
+    SECRET_KEY=(str, 'django-insecure-default-key-ab-advocacia-change-me'),
     DATABASE_URL=(str, 'sqlite:///db.sqlite3'),
 )
 
@@ -13,12 +13,36 @@ env = environ.Env(
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Read .env file if it exists
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+env_file = os.path.join(BASE_DIR, '.env')
+if os.path.exists(env_file):
+    environ.Env.read_env(env_file)
+
+# --- Environment Detection ---
+# Railway-specific environment variables can be used to detect production.
+IS_RAILWAY = 'RAILWAY_STATIC_URL' in os.environ or 'RAILWAY_ENVIRONMENT_NAME' in os.environ
+DEBUG = env('DEBUG') if not IS_RAILWAY else False
 
 SECRET_KEY = env('SECRET_KEY')
-DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['*']
+# --- Security ---
+if IS_RAILWAY:
+    # Production settings
+    ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['.railway.app'])
+    CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if not host.startswith('.')]
+    
+    # HTTPS Security settings
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000 # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+else:
+    # Local/Development settings
+    ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+    CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
 
 # Application definition
 INSTALLED_APPS = [
@@ -68,6 +92,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
+# Note: env.db() automatically uses DATABASE_URL
 DATABASES = {
     'default': env.db()
 }
@@ -91,14 +116,14 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+# Whitenoise storage for production/docker
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Media files
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Whitenoise storage for production/docker
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Authentication URLs
 LOGIN_URL = 'users:login'
