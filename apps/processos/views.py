@@ -65,3 +65,20 @@ class HistoricoCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('processos:detalhes', kwargs={'pk': self.kwargs['pk']})
+
+class ProcessoPorStatusListView(LoginRequiredMixin, ListView):
+    model = Processo
+    template_name = 'processos/listagem_status.html'
+    context_object_name = 'processos'
+    paginate_by = 10
+
+    def get_queryset(self):
+        self.status_slug = self.kwargs.get('status')
+        return Processo.objects.filter(status=self.status_slug).order_by('-updated_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        status_display = dict(Processo.STATUS_CHOICES).get(self.status_slug, self.status_slug.title())
+        context['status_nome'] = status_display
+        context['status_slug'] = self.status_slug
+        return context

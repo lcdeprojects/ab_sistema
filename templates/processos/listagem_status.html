@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Processos: {{ status_nome }} - AB Advocacia{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2 text-xs font-medium text-slate-500">
+            <li><a href="{% url 'processos:kanban' %}" class="hover:text-brand-600 transition-colors">Kanban</a></li>
+            <li><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></li>
+            <li class="text-slate-900 dark:text-white">{{ status_nome }}</li>
+        </ol>
+    </nav>
+    
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center">
+                {% if status_slug == 'aberto' %}<span class="w-2 h-8 bg-blue-500 mr-4 rounded-full"></span>
+                {% elif status_slug == 'em_andamento' %}<span class="w-2 h-8 bg-amber-500 mr-4 rounded-full"></span>
+                {% elif status_slug == 'suspenso' %}<span class="w-2 h-8 bg-red-500 mr-4 rounded-full"></span>
+                {% elif status_slug == 'encerrado' %}<span class="w-2 h-8 bg-emerald-500 mr-4 rounded-full"></span>
+                {% endif %}
+                {{ status_nome }}
+            </h1>
+            <p class="text-slate-500 mt-1">Listagem completa de processos neste estágio.</p>
+        </div>
+        <div class="flex items-center bg-white dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
+            <span class="px-4 py-2 text-sm font-bold text-slate-500">{{ page_obj.paginator.count }} encontrados</span>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for processo in processos %}
+    <div class="bg-white dark:bg-darkCard group rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:border-brand-500/50 transition-all duration-300 shadow-sm hover:shadow-xl">
+        <div class="p-5">
+            <div class="flex justify-between items-start mb-4">
+                <span class="font-mono text-[10px] font-bold text-slate-400 bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded tracking-tighter uppercase">
+                    {{ processo.numero }}
+                </span>
+                <div class="flex space-x-1">
+                    <a href="{% url 'processos:detalhes' processo.pk %}" class="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </a>
+                </div>
+            </div>
+            
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2 leading-snug group-hover:text-brand-600 transition-colors">
+                <a href="{% url 'processos:detalhes' processo.pk %}">{{ processo.titulo }}</a>
+            </h3>
+            
+            <p class="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-6 h-10">
+                {{ processo.descricao|default:"Sem descrição adicional." }}
+            </p>
+            
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800/50">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-brand-600">
+                        {{ processo.advogado.username|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-700 dark:text-slate-300">{{ processo.advogado.username }}</p>
+                        <p class="text-[9px] text-slate-400">Responsável</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] font-bold text-slate-700 dark:text-slate-300">{{ processo.updated_at|date:"d M, Y" }}</p>
+                    <p class="text-[9px] text-slate-400 uppercase tracking-widest">Atualização</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full py-20 text-center">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4 text-slate-400">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Nenhum processo em {{ status_nome }}</h3>
+        <p class="text-slate-500">Não existem processos cadastrados com este status no momento.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+<div class="mt-12 flex justify-center">
+    <div class="inline-flex items-center space-x-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </a>
+        {% endif %}
+        
+        <span class="px-4 text-sm font-bold text-slate-700 dark:text-slate-300">
+            Página {{ page_obj.number }} de {{ paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

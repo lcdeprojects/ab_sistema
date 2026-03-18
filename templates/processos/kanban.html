@@ -31,11 +31,14 @@
             </h2>
             <span class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-full font-semibold">{{ colunas.aberto|length }}</span>
         </div>
-        <div class="flex-grow space-y-4 overflow-y-auto pr-1 custom-scrollbar">
-            {% for p in colunas.aberto %}
+        <div class="flex-grow space-y-4 overflow-y-auto pr-1 mb-4 custom-scrollbar">
+            {% for p in colunas.aberto|slice:":5" %}
                 {% include 'processos/card_kanban.html' with processo=p %}
             {% endfor %}
         </div>
+        <a href="{% url 'processos:listagem_status' 'aberto' %}" class="mt-auto text-center text-xs font-bold text-slate-500 hover:text-brand-600 py-2 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg transition-colors">
+            Ver Todos →
+        </a>
     </div>
 
     <!-- Coluna Em Andamento -->
@@ -46,11 +49,14 @@
             </h2>
             <span class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-full font-semibold">{{ colunas.em_andamento|length }}</span>
         </div>
-        <div class="flex-grow space-y-4 overflow-y-auto pr-1 custom-scrollbar">
-            {% for p in colunas.em_andamento %}
+        <div class="flex-grow space-y-4 overflow-y-auto pr-1 mb-4 custom-scrollbar">
+            {% for p in colunas.em_andamento|slice:":5" %}
                 {% include 'processos/card_kanban.html' with processo=p %}
             {% endfor %}
         </div>
+        <a href="{% url 'processos:listagem_status' 'em_andamento' %}" class="mt-auto text-center text-xs font-bold text-slate-500 hover:text-brand-600 py-2 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg transition-colors">
+            Ver Todos →
+        </a>
     </div>
 
     <!-- Coluna Suspenso -->
@@ -61,11 +67,14 @@
             </h2>
             <span class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-full font-semibold">{{ colunas.suspenso|length }}</span>
         </div>
-        <div class="flex-grow space-y-4 overflow-y-auto pr-1 custom-scrollbar">
-            {% for p in colunas.suspenso %}
+        <div class="flex-grow space-y-4 overflow-y-auto pr-1 mb-4 custom-scrollbar">
+            {% for p in colunas.suspenso|slice:":5" %}
                 {% include 'processos/card_kanban.html' with processo=p %}
             {% endfor %}
         </div>
+        <a href="{% url 'processos:listagem_status' 'suspenso' %}" class="mt-auto text-center text-xs font-bold text-slate-500 hover:text-brand-600 py-2 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg transition-colors">
+            Ver Todos →
+        </a>
     </div>
 
     <!-- Coluna Encerrado -->
@@ -76,11 +85,14 @@
             </h2>
             <span class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-full font-semibold">{{ colunas.encerrado|length }}</span>
         </div>
-        <div class="flex-grow space-y-4 overflow-y-auto pr-1 custom-scrollbar">
-            {% for p in colunas.encerrado %}
+        <div class="flex-grow space-y-4 overflow-y-auto pr-1 mb-4 custom-scrollbar">
+            {% for p in colunas.encerrado|slice:":5" %}
                 {% include 'processos/card_kanban.html' with processo=p %}
             {% endfor %}
         </div>
+        <a href="{% url 'processos:listagem_status' 'encerrado' %}" class="mt-auto text-center text-xs font-bold text-slate-500 hover:text-brand-600 py-2 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg transition-colors">
+            Ver Todos →
+        </a>
     </div>
 </div>
 
