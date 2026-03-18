@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Novo Processo - AB Advocacia{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold">Novo Processo</h1>
+        <p class="text-slate-600 dark:text-slate-400">Cadastre um novo processo no sistema.</p>
+    </div>
+
+    <form method="POST" class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-6">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-1">
+                <label for="id_numero" class="text-sm font-medium">Número do Processo</label>
+                <input type="text" name="numero" id="id_numero" required value="{{ processo.numero }}"
+                       class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none">
+            </div>
+            <div class="space-y-1">
+                <label for="id_status" class="text-sm font-medium">Status Inicial</label>
+                <select name="status" id="id_status" value="{{ processo.status }}" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none">
+                    <option value="aberto">Aberto</option>
+                    <option value="em_andamento">Em Andamento</option>
+                    <option value="suspenso">Suspenso</option>
+                    <option value="encerrado">Encerrado</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="space-y-1">
+            <label for="id_titulo" class="text-sm font-medium">Título Curto / Assunto</label>
+            <input type="text" name="titulo" id="id_titulo" required value="{{ processo.titulo }}"
+                   class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-1">
+                <label for="id_cliente" class="text-sm font-medium">Cliente</label>
+                <select name="cliente" id="id_cliente" required value="{{ processo.cliente }}" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none">
+                    {% for cliente in form.fields.cliente.queryset %}
+                        <option value="{{ cliente.pk }}">{{ cliente.nome }} {{ cliente.sobrenome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="space-y-1">
+                <label for="id_advogado" class="text-sm font-medium">Advogado Responsável</label>
+                <select name="advogado" id="id_advogado" required value="{{ processo.advogado }}" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none">
+                    {% for user in form.fields.advogado.queryset %}
+                        <option value="{{ user.pk }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="space-y-1">
+            <label for="id_descricao" class="text-sm font-medium">Descrição Adicional</label>
+            <textarea name="descricao" id="id_descricao" rows="4" value="{{ processo.descricao }}"
+                      class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none"></textarea>
+        </div>
+
+        <div class="pt-4 flex justify-end space-x-3">
+            <a href="{% url 'processos:kanban' %}" class="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 transition-colors">Cancelar</a>
+            <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                Atualizar Processo
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

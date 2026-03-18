@@ -44,7 +44,7 @@ class ProcessoCreateView(LoginRequiredMixin, CreateView):
 
 class ProcessoUpdateView(LoginRequiredMixin, UpdateView):
     model = Processo
-    template_name = 'processos/form_processo.html'
+    template_name = 'processos/form_atualizar.html'
     fields = ['numero', 'titulo', 'cliente', 'advogado', 'status', 'descricao']
     success_url = reverse_lazy('processos:kanban')
 

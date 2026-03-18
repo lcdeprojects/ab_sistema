@@ -27,8 +27,9 @@ SECRET_KEY = env('SECRET_KEY')
 # --- Security ---
 if IS_RAILWAY:
     # Production settings
-    ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['.railway.app'])
-    CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if not host.startswith('.')]
+    ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['.railway.app', '*'])
+    CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if '*' not in host and not host.startswith('.')]
+    CSRF_TRUSTED_ORIGINS.append("https://*.railway.app")
     
     # HTTPS Security settings
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
