@@ -74,7 +74,13 @@ class ProcessoPorStatusListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         self.status_slug = self.kwargs.get('status')
-        return Processo.objects.filter(status=self.status_slug).order_by('-updated_at')
+        queryset = Processo.objects.filter(status=self.status_slug).order_by('-updated_at')
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(numero__icontains=query) | Q(titulo__icontains=query)
+            )
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

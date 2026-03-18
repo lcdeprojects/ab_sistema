@@ -32,7 +32,7 @@
             <span class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-full font-semibold">{{ colunas.aberto|length }}</span>
         </div>
         <div class="flex-grow space-y-4 overflow-y-auto pr-1 mb-4 custom-scrollbar">
-            {% for p in colunas.aberto|slice:":5" %}
+            {% for p in colunas.aberto|slice:":4" %}
                 {% include 'processos/card_kanban.html' with processo=p %}
             {% endfor %}
         </div>
