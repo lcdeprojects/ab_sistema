@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Nova Atualização - AB Advocacia{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold">{% if object %}Editar{% else %}Nova{% endif %} Atualização</h1>
+        <p class="text-sm text-slate-500">{% if object %}Modifique os detalhes da atualização registrada.{% else %}Adicione um novo evento ou documento ao processo.{% endif %}</p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+        {% csrf_token %}
+        
+        <div class="space-y-1">
+            <label for="id_comentario" class="text-sm font-medium">Comentário / Relato</label>
+            <textarea name="comentario" id="id_comentario" required rows="6" 
+                      class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none"
+                      >{{ form.comentario.value|default:"" }}</textarea>
+        </div>
+
+        {# Exibição de arquivos existentes (apenas em modo de edição) #}
+        {% if object.documentos.all %}
+        <div class="space-y-2 mt-4">
+            <label class="text-sm font-medium block text-slate-500 uppercase tracking-widest text-[10px]">Arquivos Atuais</label>
+            <div class="grid grid-cols-1 gap-2">
+                {% for doc in object.documentos.all %}
+                <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800 group/file">
+                    <div class="flex items-center min-w-0">
+                        <svg class="w-4 h-4 text-slate-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                        <span class="text-xs text-slate-600 dark:text-slate-400 truncate">{{ doc.nome_original|default:"Arquivo" }}</span>
+                    </div>
+                    <a href="{% url 'processos:excluir_documento' doc.pk %}" class="text-slate-400 hover:text-red-600 p-1 rounded-md hover:bg-red-50 transition-colors" title="Apagar arquivo">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="space-y-1">
+            <label class="text-sm font-medium block">Documento Anexo (Opcional)</label>
+            <div id="drop-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-200 dark:border-slate-800 border-dashed rounded-lg hover:border-brand-500 transition-colors cursor-pointer group">
+                <div class="space-y-1 text-center">
+                    <svg id="upload-icon" class="mx-auto h-12 w-12 text-slate-400 group-hover:text-brand-500" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <div class="flex text-sm text-slate-600 dark:text-slate-400 justify-center">
+                        <label for="id_arquivo" class="relative cursor-pointer rounded-md font-medium text-brand-600 hover:text-brand-500">
+                            <span id="file-label">Upload de arquivo</span>
+                            <input id="id_arquivo" name="arquivo" type="file" class="sr-only" multiple>
+                        </label>
+                    </div>
+                    <p id="file-name" class="text-xs text-slate-500 mt-2 italic hidden font-medium"></p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const fileInput = document.getElementById('id_arquivo');
+                const fileName = document.getElementById('file-name');
+                const fileLabel = document.getElementById('file-label');
+                const dropZone = document.getElementById('drop-zone');
+
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files.length > 0) {
+                        const fileNames = Array.from(this.files).map(f => f.name).join(', ');
+                        fileName.innerHTML = `<strong>Arquivos selecionados (${this.files.length}):</strong><br>${Array.from(this.files).map(f => `• ${f.name}`).join('<br>')}`;
+                        fileName.classList.remove('hidden');
+                        fileLabel.textContent = 'Alterar arquivos';
+                        dropZone.classList.add('border-brand-500', 'bg-brand-50/5', 'dark:bg-brand-500/5');
+                        dropZone.classList.remove('border-slate-200', 'dark:border-slate-800');
+                    }
+                });
+
+                // Clique na drop-zone abre o seletor
+                dropZone.addEventListener('click', function(e) {
+                    if (e.target !== fileInput) {
+                        fileInput.click();
+                    }
+                });
+
+                // Drag and drop support
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, preventDefaults, false);
+                });
+
+                function preventDefaults (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, highlight, false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, unhighlight, false);
+                });
+
+                function highlight(e) {
+                    dropZone.classList.add('border-brand-500', 'bg-brand-50/5', 'dark:bg-brand-500/5');
+                }
+
+                function unhighlight(e) {
+                    if (!fileInput.files.length) {
+                        dropZone.classList.remove('border-brand-500', 'bg-brand-50/5', 'dark:bg-brand-500/5');
+                    }
+                }
+
+                dropZone.addEventListener('drop', handleDrop, false);
+
+                function handleDrop(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    fileInput.files = files;
+                    fileInput.dispatchEvent(new Event('change'));
+                }
+            });
+        </script>
+
+        <div class="pt-4 flex justify-end space-x-3">
+            <a href="javascript:history.back()" class="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 transition-colors">Cancelar</a>
+            <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                Publicar Atualização
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

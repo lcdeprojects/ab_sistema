@@ -2,7 +2,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.db.models import Q
-from .models import Processo, HistoricoProcesso
+from .models import Processo, HistoricoProcesso, DocumentoHistorico
 from .dashboard_views import dashboard_view
 
 class ProcessoKanbanView(LoginRequiredMixin, ListView):
@@ -55,16 +55,63 @@ class ProcessoDeleteView(LoginRequiredMixin, DeleteView):
 
 class HistoricoCreateView(LoginRequiredMixin, CreateView):
     model = HistoricoProcesso
-    template_name = 'processos/form_historico.html'
-    fields = ['comentario', 'arquivo']
+    template_name = 'processos/form_atualizar_historico.html'
+    fields = ['comentario']
     
     def form_valid(self, form):
         form.instance.processo_id = self.kwargs['pk']
         form.instance.advogado = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        
+        # Process multiple files
+        files = self.request.FILES.getlist('arquivo')
+        for f in files:
+            DocumentoHistorico.objects.create(
+                historico=self.object,
+                arquivo=f,
+                nome_original=f.name
+            )
+        return response
 
     def get_success_url(self):
         return reverse_lazy('processos:detalhes', kwargs={'pk': self.kwargs['pk']})
+
+class HistoricoUpdateView(LoginRequiredMixin, UpdateView):
+    model = HistoricoProcesso
+    template_name = 'processos/form_atualizar_historico.html'
+    fields = ['comentario']
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        # Process multiple files
+        files = self.request.FILES.getlist('arquivo')
+        for f in files:
+            DocumentoHistorico.objects.create(
+                historico=self.object,
+                arquivo=f,
+                nome_original=f.name
+            )
+        return response
+
+    def get_success_url(self):
+        return reverse_lazy('processos:detalhes', kwargs={'pk': self.object.processo.pk})
+
+class HistoricoDeleteView(LoginRequiredMixin, DeleteView):
+    model = HistoricoProcesso
+    template_name = 'confirmar_delecao.html'
+    def get_success_url(self):
+        return reverse_lazy('processos:detalhes', kwargs={'pk': self.object.processo.pk})
+
+
+class DocumentoHistoricoDeleteView(LoginRequiredMixin, DeleteView):
+    model = DocumentoHistorico
+    template_name = 'confirmar_delecao.html'
+    
+    def get_success_url(self):
+        processo_id = self.object.historico.processo.pk
+        return reverse_lazy('processos:detalhes', kwargs={'pk': processo_id})
+
 
 class ProcessoPorStatusListView(LoginRequiredMixin, ListView):
     model = Processo
